@@ -1,6 +1,6 @@
 const LTT = require('../dist/list-to-tree');
 
-describe('Smaller child keys:', function() {
+describe('Invalid list:', function() {
 
     let tree = null;
 
@@ -11,6 +11,13 @@ describe('Smaller child keys:', function() {
     const key_child = 'child';
 
     const depthKeyName = '__depth'
+
+    const consoleLogOfSilence = (func) => {
+        const log = console.log;
+        console.log = () => {};
+        func();
+        console.log = log;
+    }
 
     beforeEach(function() {
         const list = [
@@ -37,21 +44,25 @@ describe('Smaller child keys:', function() {
                 parent: 14
             }, {
                 id: 8,
-                parent: 15
+                parent: 100 // bad id
             }, {
                 id: 9,
-                parent: 15
+                parent: 101 // bad id
             }, {
                 id: 10,
-                parent: 15
+                parent: 102 // bad id
             }
         ];
-        const ltt = new LTT(list, {
-            key_id: key_id,
-            key_parent: key_parent,
-            key_child: key_child
-        });
-        tree = ltt.GetTree();
+
+        // hide Warning massages
+        consoleLogOfSilence(function() {
+            const ltt = new LTT(list, {
+                key_id: key_id,
+                key_parent: key_parent,
+                key_child: key_child
+            });
+            tree = ltt.GetTree();
+        })
     });
 
     it('It is workly', function() {
@@ -87,7 +98,7 @@ describe('Smaller child keys:', function() {
         const node = tree[0][key_child][0][key_child][1];
         expect( node[key_id] ).toBe(15);
         expect( node[key_parent] ).toBe(20);
-        expect( key_child in node ).toBe(true);
+        expect( key_child in node ).toBe(false);
         expect( node[depthKeyName] ).toBe(2);
     });
 
@@ -103,22 +114,6 @@ describe('Smaller child keys:', function() {
         const node = tree[0][key_child][0][key_child][0][key_child][1];
         expect( node[key_id] ).toBe(7);
         expect( node[key_parent] ).toBe(14);
-        expect( key_child in node ).toBe(false);
-        expect( node[depthKeyName] ).toBe(3);
-    });
-
-    it('4th depth node 3', function() {
-        const node = tree[0][key_child][0][key_child][1][key_child][0];
-        expect( node[key_id] ).toBe(8);
-        expect( node[key_parent] ).toBe(15);
-        expect( key_child in node ).toBe(false);
-        expect( node[depthKeyName] ).toBe(3);
-    });
-
-    it('4th depth node 4', function() {
-        const node = tree[0][key_child][0][key_child][1][key_child][1];
-        expect( node[key_id] ).toBe(9);
-        expect( node[key_parent] ).toBe(15);
         expect( key_child in node ).toBe(false);
         expect( node[depthKeyName] ).toBe(3);
     });
